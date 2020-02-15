@@ -1,2 +1,3 @@
-package hello
-go 1.13
+module hello
+
+go 1.13.8
