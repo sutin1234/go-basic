@@ -1,2 +1,2 @@
 # go-basic
-create go basic by yod
+create go basic by p"yod
