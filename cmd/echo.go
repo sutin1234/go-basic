@@ -1,6 +1,7 @@
 package main
 
 import (
+	"hello/fizzbuzz"
 	"hello/oscar"
 	"net/http"
 	"strconv"
@@ -19,7 +20,8 @@ func main() {
 
 	// Router
 	e.GET("/oscarmale", OsCarMaleHandle)
-	e.GET("/fizzbuzz/:number", FizzBussHandle)
+	// e.GET("/fizzbuzz/:number", FizzBuzzHandle)
+	e.POST("/fizzbuzz", postFizzBuzzHandle)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
@@ -30,8 +32,28 @@ func OsCarMaleHandle(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func FizzBussHandle(c echo.Context) error {
+func FizzBuzzHandle(c echo.Context) error {
 	numberString := c.Param("number") // param value
 	n, _ := strconv.Atoi(numberString)
 	return c.JSON(http.StatusOK, n)
+}
+
+func postFizzBuzzHandle(c echo.Context) error {
+	var req map[string]int
+	err := c.Bind(&req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+
+	type fizzBuzzResponse struct {
+		Number   int    `json: number`
+		FizzBuzz string `json: fizzbuzz`
+	}
+
+	return c.JSON(http.StatusOK, fizzBuzzResponse{
+		Number:   req["number"],
+		FizzBuzz: fizzbuzz.Say(req["number"]),
+	})
 }
