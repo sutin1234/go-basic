@@ -1,6 +1,6 @@
 // go test custom tag
 // +build integration
-// go test -tags=integration
+// go test -tags=integration -run TestFizzBuzz1To100
 
 package fizzbuzz_test
 
