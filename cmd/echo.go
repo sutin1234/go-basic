@@ -39,6 +39,13 @@ func OsCarMaleHandle(c echo.Context) error {
 func FizzBuzzHandle(c echo.Context) error {
 	numberString := c.Param("number") // param value
 	n, _ := strconv.Atoi(numberString)
+	defer func() {
+		if r := recover(); r != nil {
+			c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": fmt.Sprintf("panic: %s", r),
+			})
+		}
+	}()
 	tokenString := c.Request().Header.Get("Authorization")[7:]
 
 	//validation token
