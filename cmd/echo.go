@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"hello/fizzbuzz"
 	"hello/oscar"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -20,7 +23,8 @@ func main() {
 
 	// Router
 	e.GET("/oscarmale", OsCarMaleHandle)
-	// e.GET("/fizzbuzz/:number", FizzBuzzHandle)
+	e.GET("/fizzbuzz/:number", FizzBuzzHandle)
+	e.GET("/token", TokenHandle)
 	e.POST("/fizzbuzz", postFizzBuzzHandle)
 
 	// Start server
@@ -35,6 +39,20 @@ func OsCarMaleHandle(c echo.Context) error {
 func FizzBuzzHandle(c echo.Context) error {
 	numberString := c.Param("number") // param value
 	n, _ := strconv.Atoi(numberString)
+	tokenString := c.Request().Header.Get("Authorization")[7:]
+
+	//validation token
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Err sign method %v", token.Header["alg"])
+		}
+		return []byte("secret"), nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, "Token invalid")
+	}
+
 	return c.JSON(http.StatusOK, n)
 }
 
@@ -55,5 +73,24 @@ func postFizzBuzzHandle(c echo.Context) error {
 	return c.JSON(http.StatusOK, fizzBuzzResponse{
 		Number:   req["number"],
 		FizzBuzz: fizzbuzz.Say(req["number"]),
+	})
+}
+
+func TokenHandle(c echo.Context) error {
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// Set claims
+	claims := token.Claims.(jwt.MapClaims)
+	claims["name"] = "sutin injitt"
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"token": t,
 	})
 }
