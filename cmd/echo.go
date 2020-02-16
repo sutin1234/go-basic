@@ -22,6 +22,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Router
+	e.GET("/", FizzBuzzOOPStyleHandle)
 	e.GET("/oscarmale", OsCarMaleHandle)
 	e.GET("/fizzbuzz/:number", FizzBuzzHandle)
 	e.GET("/token", TokenHandle)
@@ -29,6 +30,12 @@ func main() {
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
+}
+
+func FizzBuzzOOPStyleHandle(c echo.Context) error {
+	fb := fizzbuzz.New(15)
+	// fmt.Println(string(fb))
+	return c.JSON(http.StatusOK, fb.String())
 }
 
 func OsCarMaleHandle(c echo.Context) error {
@@ -84,10 +91,10 @@ func postFizzBuzzHandle(c echo.Context) error {
 }
 
 func TokenHandle(c echo.Context) error {
-	// Create token
+	// Create token.
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	// Set claims
+	// Set claims.
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = "sutin injitt"
 	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()

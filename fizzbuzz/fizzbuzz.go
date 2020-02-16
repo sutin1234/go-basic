@@ -7,6 +7,16 @@ import "strconv"
 // run test normal => go test
 // run test with verbose => go test -v
 
+type FizzOOP int
+
+func New(i int) FizzOOP {
+	return FizzOOP(i)
+}
+
+func (f FizzOOP) String() string {
+	return Say(int(f))
+}
+
 func Say(n int) string {
 	if n%15 == 0 {
 		return "FizzBuzz"
